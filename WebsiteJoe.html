@@ -12,19 +12,51 @@
   <titel> AthleteCare Joe- Manuelle Therapie für Sportler und Lebensfreudige </title>
 </head>
 
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style> 
+    ul.breadcrumb {
+    padding: 10px 16px;
+   list-style: none;
+   background-color: #eee;}
+   
+    ul.breadcrumb li {
+    display: inline;
+    font-size: 18px;}
+    
+    ul.breadcrumb li+li:before {
+    padding: 8px;
+    color: black;
+     content: "/\00a0";}
+     
+    ul.breadcrumb li a {
+    color: #0275d8;
+    text-decoration: none;}
+    
+    ul.breadcrumb li a:hover {
+    color: #01447e;
+    text-decoration: underline;}
+  </style>
+</head>
+
+    <ul class="breadcrumb">
+      <li><a href="#Home">Home</a></li>
+      <li><a href="#Kontakt">Kontakt</a></li>
+      <li><a href="#About">About</a></li>
+    </ul>
+
 <body>
     <h1> <span style="color:darkgreen"> AthleteCare Joe- Manuelle Therapie für Sportler und Lebensfreudige </span> </h1>
     <p> <span style="color:green"> Für maximale Leistung und anhaltende Lebensfreude</span> </p>
 
-<section>
-  <section style=" border-style:dashed">
+<nav class="menu">
     <h3> Navigation</h3>
     <ul>
-      <li>Was bedeutet Manuelle Therapie?</li>
-      <li>Was erwartet einen bei der manuellen Therapie?</li>
-      <li>Wer ist Joe?</li>
+      <li><a href="#">Was bedeutet Manuelle Therapie?</a></li>
+      <li><a href="#">Was erwartet einen bei der manuellen Therapie?</a></li>
+      <li><a href="#">Wer ist Joe?</a></li>
     <ul/>
-</section>
+</nav>
 
 <section>
  <section style="font-family:Helvetica">
@@ -66,10 +98,38 @@
             Wettkampfform, von kurzen Sprintdistanzen bis hin zum Ironman.</p>
       </details>
 </article>
-
 </section>
-    
 </body>
+
+<section>
+  <section style="font-family:Arial">
+  <h3> Kontakt -Terminanfrage- </h3>
+  <p> Für Fragen oder zu Terminvereinbarung füllen Sie bitte folgende Anfrage aus. </p>
+  <form action="SENDEADRESSE" id="ft-form" method="POST" accept-charset="UTF-8">
+  <fieldset>
+    <label> Name <input type="text" name="Name" required>
+    </label>
+    <label>
+      E-Mail-Adresse <input type="email" name="E-Mail" required>
+    </label>
+    <label>
+      Ihre Nachricht <textarea rows="3" name="Nachricht" required></textarea>
+    </label>
+  
+  <div>
+      <label>
+        <input type="checkbox" name="Datenverarbeitung bestätigt" value="Ja" required>
+        <span>Ich bin mit der Verarbeitung meiner Eingaben zum Zwecke der Terminanfrage 
+        durch <a href="AthleteCare Joe" target="_blank">AthleteCare Joe</a> einverstanden.</span>
+      </label>
+  </div>
+  
+  </fieldset>
+  <div class="btns">
+    <input type="text" name="_gotcha" value="" style="display:none;">
+    <input type="submit" value="Absenden">
+  </div>
+</form>
 
 <footer style="background-color:white; border-style:solid"> 
     <p> Copyright &copy; 2024 Jonas Zachewicz</p>
