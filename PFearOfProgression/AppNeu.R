@@ -174,6 +174,40 @@ patient_statements <- patient_statements[sample(1:nrow(patient_statements), 65, 
 clean_FoP_spss <- cbind(clean_FoP_spss, patient_statements)
 
 
+#Synonyme für Variablen erstellen-----
+
+#Anzeige der Variablen ändern für Demographic Balken
+variable_mapping1 <- data.frame(
+  variable = c ("sex", "disease_stage", "marital_status", 
+                "education", "hads_grading"),
+  synonym = c ("Sex", "Diesease Stage", "Marital Status", "Education", "Stage of Depression"),
+  stringsAsFactors = FALSE
+)
+
+#Anzeige der Variablen ändern für Demographic Verteilung
+variable_mapping2 <- data.frame(
+  variable = c ("age", "age_diagnose_pd", "years_of_illness", "updrs_ii_total", 
+                "updrs_iii_total", "paf_sum4", "hads_d_total", "pdq_8_index"),
+  synonym = c ("Age", "Age at Diagnosis", "Years of Illness", "UPDRSII", "UPDRSIII","FoP","Depression (HADS-D)","Quality of Life"),
+  stringsAsFactors = FALSE
+)
+
+#Anzeige der Variablen ändern für Correlation
+variable_mapping3 <- data.frame(
+  variable = c ("paf_sum4", "age", "years_of_illness", "hads_d_total", 
+                "updrs_iii_total", "pdq_8_total"),
+  synonym = c ("FoP", "Age", "Years of Illness", "Depression (HADS-D)", "UPDRSIII","Quality of Life"),
+  stringsAsFactors = FALSE
+)
+
+#Anzeige der Variablen ändern für Regression
+variable_mapping4 <- data.frame(
+  variable = c("age", "age_diagnose_pd", "education", "disease_stage", "years_of_illness", "hads_d_total"),
+  synonym = c("Age", "Age at Diagnosis", "Education", "Disease Stage", "Years of Illness", "Depression (HADS-D)"),
+  stringsAsFactors= FALSE
+)
+
+
 #App--------
 
 # UI-Teil----
@@ -217,15 +251,13 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(
                           selectInput("var_select", "Select Variable for Plot:",                                   #Auswählen Variablen, für die Säulen-/Balkendiagramme erstellt werden sollen
-                                      choices = c("sex", "disease_stage", "marital_status", 
-                                                  "education", "hads_grading")),
+                                      choices = setNames(variable_mapping1$variable,variable_mapping1$synonym)),
                           sliderInput("age_range", "Select Age Range:",                                            #Darstellung durch individuell gewählte Altergruppen möglich
                                       min = min(clean_FoP_spss$age), max = max(clean_FoP_spss$age),
                                       value = c(min(clean_FoP_spss$age), max(clean_FoP_spss$age)),
                                       step = 1),
                           selectInput("dist_var", "Select Variable for Distribution Plot:",                        #Auswählen Variablen für die ein Verteilungsdiagramm erstellt werden soll
-                                      choices = c("age", "age_diagnose_pd", "years_of_illness", "updrs_ii_total", 
-                                                  "updrs_iii_total", "paf_sum4", "hads_d_total", "pdq_8_index"))
+                                      choices = setNames(variable_mapping2$variable,variable_mapping2$synonym))
                         ),
                         mainPanel(fluidRow(                                        #Anzeigen der Diagramme Säulen/Balkendiagramm,Verteilungsdiagramm,Tabelle
                           column(6, plotOutput("bar_plot")),
@@ -240,10 +272,8 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(                                                            #Auswahloptionen für Variablen
                           checkboxGroupInput("corr_vars", "Select Variables for Correlation:",
-                                             choices = c("paf_sum4", "age", "years_of_illness", "hads_d_total", 
-                                                         "updrs_iii_total", "pdq_8_total"),
-                                             selected = c("paf_sum4", "age", "years_of_illness", "hads_d_total")),
-                          helpText("Note: 'paf_sum4' should always be included in the correlation.")
+                                             choices = setNames(variable_mapping3$variable,variable_mapping3$synonym)),
+                          helpText("Note: 'FoP' should always be included in the correlation.")
                         ),
                         mainPanel(fluidRow(                       #Anzeigen Heatmap (variabel) und Scatternplot
                           column(width = 12,
@@ -261,7 +291,7 @@ ui <- fluidPage(
                                      helpText("Note: Choose a regression model to run.")
                         ),
                         mainPanel(plotOutput("regression_plot"),                     # Regressionsgraph
-                                  verbatimTextOutput("regression_results")           # Ausgabe der Regressionsparameter
+                                  verbatimTextOutput("regression_results")           # Ausgabe der Regressionsparameter Hinweis: Erscheinen nicht in der App, da kein Ergebnis mit den zufällig erstellten Modellen berechnet werden kann)
                         )
                       )
              ),
@@ -289,46 +319,34 @@ server <- function(input, output, session) {
   # Berechne die demografische Tabelle für ausgewählte Variablen.    Hier muss die Anzeige der Variablen und Beschriftungen noch verbessert werden, Farben usw.
   output$demographic_table <- renderDataTable({
     summary_data <- data.frame(
-      Variable = c("Age", "Sex", "Marital Status", "Years of Education", 
+      Variable = c("Age", "Years of Education", 
                    "Age at Diagnosis", "UPDRS II Total", "UPDRS III Total"),
       N = c(sum(!is.na(filtered_data()$age)),
-            sum(!is.na(filtered_data()$sex)),
-            sum(!is.na(filtered_data()$marital_status)),
             sum(!is.na(filtered_data()$years_education)),
             sum(!is.na(filtered_data()$age_diagnose_pd)),
             sum(!is.na(filtered_data()$updrs_ii_total)),
             sum(!is.na(filtered_data()$updrs_iii_total))),
       Median = c(median(filtered_data()$age, na.rm = TRUE),
-                 NA,                                                        #für kategoriale Variablen werden entsprechende Werte nicht berechnet
-                 NA,
                  median(filtered_data()$years_education, na.rm = TRUE),
                  median(filtered_data()$age_diagnose_pd, na.rm = TRUE),
                  median(filtered_data()$updrs_ii_total, na.rm = TRUE),
                  median(filtered_data()$updrs_iii_total, na.rm = TRUE)),
       Mean = c(mean(filtered_data()$age, na.rm = TRUE),
-               NA,  
-               NA,
                mean(filtered_data()$years_education, na.rm = TRUE),
                mean(filtered_data()$age_diagnose_pd, na.rm = TRUE),
                mean(filtered_data()$updrs_ii_total, na.rm = TRUE),
                mean(filtered_data()$updrs_iii_total, na.rm = TRUE)),
       SD = c(sd(filtered_data()$age, na.rm = TRUE),
-             NA,  
-             NA,
              sd(filtered_data()$years_education, na.rm = TRUE),
              sd(filtered_data()$age_diagnose_pd, na.rm = TRUE),
              sd(filtered_data()$updrs_ii_total, na.rm = TRUE),
              sd(filtered_data()$updrs_iii_total, na.rm = TRUE)),
       Min = c(min(filtered_data()$age, na.rm = TRUE),
-              NA,  
-              NA,
               min(filtered_data()$years_education, na.rm = TRUE),
               min(filtered_data()$age_diagnose_pd, na.rm = TRUE),
               min(filtered_data()$updrs_ii_total, na.rm = TRUE),
               min(filtered_data()$updrs_iii_total, na.rm = TRUE)),
       Max = c(max(filtered_data()$age, na.rm = TRUE),
-              NA,  
-              NA,
               max(filtered_data()$years_education, na.rm = TRUE),
               max(filtered_data()$age_diagnose_pd, na.rm = TRUE),
               max(filtered_data()$updrs_ii_total, na.rm = TRUE),
@@ -345,9 +363,10 @@ server <- function(input, output, session) {
     
     #Sicherstellen, dass die ausgewählte Variable existiert
     if (selected_var %in% colnames(filtered_data())) {
+      var_synonym <- variable_mapping1$synonym[variable_mapping1$variable == selected_var]
       ggplot(filtered_data(), aes(x = .data[[selected_var]])) +
         geom_bar() +
-        labs(title = paste("Bar Plot of", selected_var), x = selected_var, y = "Count")}
+        labs(title = paste("Bar Plot of", var_synonym), x = var_synonym, y = "Count")}
   })
   
   # Tortendiagramm
@@ -356,10 +375,12 @@ server <- function(input, output, session) {
     
     if (selected_var %in% colnames(filtered_data())) {       #Sicherstellen, dass die ausgewählte Variable existiert
       var_data <- filtered_data()[[selected_var]]
+      var_synonym <- variable_mapping1$synonym[variable_mapping1$variable == selected_var]
       var_table <- table(var_data)
       var_percentage <- prop.table(var_table) * 100
+      var_percentage <- var_percentage[var_percentage > 0]       #Werte mit 0% entfernen
       pie(var_percentage, labels = paste(names(var_percentage), round(var_percentage, 1), "%"), 
-          main = paste("Pie Chart of", selected_var))}
+          main = paste("Pie Chart of", var_synonym))}
   })
   
   #Verteilungsdiagramm
@@ -367,9 +388,10 @@ server <- function(input, output, session) {
     selected_var <- input$dist_var
     
     if (selected_var %in% colnames(filtered_data())) {     #Sicherstellen, dass die ausgewählte Variable existiert
+      var_synonym <- variable_mapping2$synonym[variable_mapping2$variable == selected_var]
       ggplot(filtered_data(), aes(x = .data[[selected_var]])) +
         geom_histogram(bins = 20, fill = "lightblue", color = "black", alpha = 0.7) +
-        labs(title = paste("Distribution of", selected_var), x = selected_var, y = "Frequency")}
+        labs(title = paste("Distribution of", var_synonym), x = var_synonym, y = "Frequency")}
   })
   
   #Korrelation/HeatMap-----
@@ -407,10 +429,14 @@ server <- function(input, output, session) {
     corr_melt <- as.data.frame(as.table(corr_matrix))
     colnames(corr_melt) <- c("Var1", "Var2", "Correlation")
     
+    #Variablennamen ersetzen
+    corr_melt$Var1 <- variable_mapping3$synonym[match(corr_melt$Var1, variable_mapping3$variable)]
+    corr_melt$Var2 <-  variable_mapping3$synonym[match(corr_melt$Var2,variable_mapping3$variable)]
+    
     #Heatmap mit ggplot2.    Farben ändern!
     ggplot(corr_melt, aes(x = Var1, y = Var2, fill = Correlation)) +
       geom_tile(color = "white") +
-      scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0,
+      scale_fill_gradient2(low = "lightblue", mid = "white", high = "midnightblue", midpoint = 0,
                            limits = c(-1, 1), name = "Correlation") +
       labs(title = "Correlation Heatmap", x = "", y = "") +
       theme_minimal() +
@@ -488,11 +514,17 @@ server <- function(input, output, session) {
       showNotification("Error calculating fitted values", type = "error")
       return(NULL)}
     
+    
+    x_synonym <- variable_mapping4$synonym[variable_mapping4$variable == "paf_sum4"]
+    selected_vars_synonyms <- variable_mapping4$synonym[match(selected_vars,variable_mapping4$variable)]
+    
+    
+    
     #Erstellen des Scatterplots
     ggplot(regression_data, aes(x = paf_sum4, y = fitted_values)) +
       geom_point(aes(color = paf_sum4), alpha = 0.6) +
       geom_smooth(method = "lm", color = "red", se = FALSE) +
-      labs(title = paste("Regression: PaF vs.", paste(selected_vars, collapse = ", ")), 
+      labs(title = paste("Regression: PaF vs.", paste(selected_vars_synonyms, collapse = ", ")), 
            x = "Fear of Progression (PaF)", y = "Predicted PaF") +
       theme_minimal()
   });
@@ -533,16 +565,12 @@ server <- function(input, output, session) {
   })
   
 }
+
+
+
 # App starten
 shinyApp(ui = ui, server = server)
 
 
-#test github
-
-
-
-
-
-
-
+#packrat, rsconnect
 
