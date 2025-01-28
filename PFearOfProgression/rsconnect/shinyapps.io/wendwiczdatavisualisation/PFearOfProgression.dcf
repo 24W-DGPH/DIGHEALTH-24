@@ -1,0 +1,12 @@
+name: PFearOfProgression
+title: PFearOfProgression
+username: wendwiczdatavisualisation
+account: wendwiczdatavisualisation
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13829153
+bundleId:
+url: https://wendwiczdatavisualisation.shinyapps.io/PFearOfProgression/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

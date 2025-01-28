@@ -1,0 +1,13 @@
+name: FearOfProgression
+title: FearOfProgression
+username: wendwiczdatavisualisation
+account: wendwiczdatavisualisation
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13818385
+bundleId:
+url: https://wendwiczdatavisualisation.shinyapps.io/FearOfProgression/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: german-gsd-ud-2.5-191206.udpipe

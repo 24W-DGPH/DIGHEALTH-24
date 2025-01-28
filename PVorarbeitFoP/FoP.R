@@ -111,7 +111,7 @@ clean_FoP_spss <- clean_FoP_spss %>%
      health_literacy_index
      )
                   
-#view(clean_FoP_spss)    #proof
+view(clean_FoP_spss)    #proof
 #names(clean_FoP_spss)   #proof
 
 
